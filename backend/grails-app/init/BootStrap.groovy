@@ -1,14 +1,14 @@
-import edu.uiowa.eedesign.lab1.Config
+import edu.uiowa.eedesign.lab1.TempConfig
 
 class BootStrap {
 
     def init = { servletContext ->
         // Save a default config when we start up the application
-        new Config(isButtonPressed: false, isSensorConnected: false,
+        new TempConfig(isButtonPressed: false, isSensorConnected: false,
                 maxTemperature: 80, minTemperature: 10).save()
     }
 
     def destroy = {
     }
-    
+
 }

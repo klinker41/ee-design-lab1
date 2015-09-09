@@ -19,3 +19,15 @@ POST 173.17.168.19:8083/lab1/temperature/add?temp=13.65
 ```
 
 In the above example, 13.65 degrees Celsius is added to the database at the current time.
+
+To get the last 300 temperatures:
+
+```
+GET 173.17.168.19:8083/lab1/temperature
+```
+
+To get the latest temperature:
+
+```
+GET 173.17.168.19:8083/lab1/temperature/latest
+```

@@ -1,6 +1,6 @@
 package edu.uiowa.eedesign.lab1
 
-class Config {
+class TempConfig {
 
     boolean isButtonPressed
     boolean isSensorConnected
