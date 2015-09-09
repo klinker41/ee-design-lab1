@@ -31,3 +31,13 @@ To get the latest temperature:
 ```
 GET 173.17.168.19:8083/lab1/temperature/latest
 ```
+
+## Test Client ##
+
+The client is available to send post requests to the database each second for testing the backend and website. It will post a random temperature every second when it is running. To start it up:
+
+```
+./gradlew client:run
+```
+
+Let it run for as long as you are testing.

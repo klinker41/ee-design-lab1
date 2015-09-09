@@ -1,4 +1,13 @@
-apply plugin: "java"
+apply plugin: "groovy"
+apply plugin: "application"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+mainClassName = "edu.uiowa.eedesign.lab1.Client"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.10'
+    compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
+}
