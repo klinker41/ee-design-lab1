@@ -77,7 +77,7 @@ class TemperatureController {
             result = ["temp": null]
         }
 
-        render result as JSON
+        render(text: result as JSON, contentType: 'application/json', encoding:"UTF-8")
     }
 
 }
