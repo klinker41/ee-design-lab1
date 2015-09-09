@@ -69,12 +69,15 @@ class TemperatureController {
         // return the last value from the temperature database
         Temperature temp = Temperature.listOrderByDate(max: 1, order: "desc")[0];
 
-        if (temp.date >= System.currentTimeMillis() - 1000) {
-            render(text: "{ \"temp\": ${temp.temp} }" as JSON, contentType: 'application/json', encoding:"UTF-8")
+        def result
+        response.setContentType("application/json")
+        if (temp != null && temp.date >= System.currentTimeMillis() - 1000) {
+            result = ["temp": temp.temp]
         } else {
-            render(text: "{ \"temp\": null }" as JSON, contentType: 'application/json', encoding:"UTF-8")
-
+            result = ["temp": null]
         }
+
+        render result as JSON
     }
 
 }
