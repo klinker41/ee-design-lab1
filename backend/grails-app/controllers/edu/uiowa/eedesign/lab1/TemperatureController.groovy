@@ -29,8 +29,8 @@ class TemperatureController {
 
             past[seconds] = temp.temp + ""
         }
-
-        render (past as JSON).toString()
+            
+        render(text: past as JSON, contentType: 'application/json', encoding:"UTF-8")
     }
 
     /**
@@ -70,9 +70,10 @@ class TemperatureController {
         Temperature temp = Temperature.listOrderByDate(max: 1, order: "desc")[0];
 
         if (temp.date >= System.currentTimeMillis() - 1000) {
-            render "{ \"temp\": ${temp.temp} }"
+            render(text: "{ \"temp\": ${temp.temp} }" as JSON, contentType: 'application/json', encoding:"UTF-8")
         } else {
-            render "null"
+            render(text: "{ \"temp\": null }" as JSON, contentType: 'application/json', encoding:"UTF-8")
+
         }
     }
 
