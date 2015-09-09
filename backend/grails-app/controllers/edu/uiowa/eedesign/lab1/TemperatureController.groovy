@@ -1,5 +1,7 @@
 package edu.uiowa.eedesign.lab1
 
+import grails.converters.JSON
+
 class TemperatureController {
 
     /**
@@ -28,7 +30,7 @@ class TemperatureController {
             past[seconds] = temp.temp + ""
         }
 
-        render past
+        render (past as JSON).toString()
     }
 
     /**
@@ -68,7 +70,7 @@ class TemperatureController {
         Temperature temp = Temperature.listOrderByDate(max: 1, order: "desc")[0];
 
         if (temp.date >= System.currentTimeMillis() - 1000) {
-            render temp.temp
+            render "{ \"temp\": ${temp.temp} }"
         } else {
             render "null"
         }

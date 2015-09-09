@@ -35,7 +35,7 @@ public class Client extends TimerTask {
         Random random = new Random()
         float temp = random.nextFloat() * 100
 
-        def http = new HTTPBuilder("http://173.17.168.19:8083/lab1/temperature/add?temp=${temp}")
+        def http = new HTTPBuilder("http://localhost:8080/temperature/add?temp=${temp}")
 
         http.request(POST, TEXT) { req ->
             response.success = { resp, reader ->
