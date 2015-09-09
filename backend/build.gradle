@@ -1,0 +1,107 @@
+buildscript {
+    ext {
+        grailsVersion = project.grailsVersion
+    }
+    repositories {
+        jcenter()
+        mavenLocal()
+        maven { url "https://repo.grails.org/grails/core" }
+    }
+    dependencies {
+        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
+        classpath 'com.bertramlabs.plugins:asset-pipeline-gradle:2.1.1'
+        classpath 'com.bmuschko:gradle-cargo-plugin:2.1.1'
+    }
+}
+
+plugins {
+    id "io.spring.dependency-management" version "0.5.2.RELEASE"
+}
+
+version project.versionName
+group project.group
+
+apply plugin: "spring-boot"
+apply plugin: "war"
+apply plugin: "asset-pipeline"
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: "org.grails.grails-web"
+apply plugin: "org.grails.grails-gsp"
+apply plugin: 'com.bmuschko.cargo'
+
+ext {
+    grailsVersion = project.grailsVersion
+    gradleWrapperVersion = project.gradleWrapperVersion
+}
+
+assets {
+    minifyJs = true
+    minifyCss = true
+}
+
+repositories {
+    mavenLocal()
+    maven { url "https://repo.grails.org/grails/core" }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.grails:grails-bom:$grailsVersion"
+    }
+    applyMavenExclusions false
+}
+
+dependencies {
+    compile "org.springframework.boot:spring-boot-starter-logging"
+    compile "org.springframework.boot:spring-boot-starter-actuator"
+    compile "org.springframework.boot:spring-boot-autoconfigure"
+    provided "org.springframework.boot:spring-boot-starter-tomcat"
+    compile "org.grails:grails-dependencies"
+    compile "org.grails:grails-web-boot"
+
+    compile "org.grails.plugins:hibernate"
+    compile "org.grails.plugins:cache"
+    compile "org.hibernate:hibernate-ehcache"
+
+    runtime "org.grails.plugins:asset-pipeline:3.0.6"
+    runtime "org.grails.plugins:scaffolding"
+
+    testCompile "org.grails:grails-plugin-testing"
+    testCompile "org.grails.plugins:geb"
+
+    // Note: It is recommended to update to a more robust driver (Chrome, Firefox etc.)
+    testRuntime 'org.seleniumhq.selenium:selenium-htmlunit-driver:2.44.0'
+
+    console "org.grails:grails-console"
+}
+
+war.doLast {
+    copy {
+        from "${buildDir}/libs"
+        into "${buildDir}/libs"
+        include "${project.group}-${project.versionName}.war"
+        rename ("${project.group}-${project.versionName}.war", 'lab1.war')
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
+}
+
+cargo {
+    containerId = 'wildfly9x'
+
+    deployable {
+        context = 'lab1'
+    }
+
+    remote {
+        hostname = '173.17.168.19'
+        username = 'klinker41'
+        password = 'klinker1127'
+        containerProperties {
+            property 'cargo.jboss.management-http.port', 9993
+        }
+    }
+}

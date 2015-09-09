@@ -1,0 +1,7 @@
+.DS_Store
+.gradle/
+.idea/
+*.iml
+**/build
+**/robovm-build
+local.properties
