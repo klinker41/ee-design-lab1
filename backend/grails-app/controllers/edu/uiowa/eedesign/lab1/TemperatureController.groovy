@@ -29,7 +29,8 @@ class TemperatureController {
 
             past[seconds] = temp.temp + ""
         }
-            
+        
+        header 'Access-Control-Allow-Origin', "*"    
         render(text: past as JSON, contentType: 'application/json', encoding:"UTF-8")
     }
 
@@ -77,6 +78,7 @@ class TemperatureController {
             result = ["temp": null]
         }
 
+        header 'Access-Control-Allow-Origin', "*"  
         render(text: result as JSON, contentType: 'application/json', encoding:"UTF-8")
     }
 
