@@ -12,7 +12,8 @@ class TemperatureController {
      *      GET /temperature
      *      params: type=F or C for fahrenheit or celsius. if not included, default is C
      *
-     * @return a list a the last 300 seconds worth of temperatures.
+     * @return a JSON object that houses list a the last 300 seconds worth of temperatures under
+     *         the key "temps".
      */
     def index() {
         boolean fahrenheit
@@ -41,8 +42,8 @@ class TemperatureController {
             past[seconds] = (fahrenheit ? (temp.temp * 1.8f) + 32 : temp.temp) + ""
         }
         
-        header 'Access-Control-Allow-Origin', "*"    
-        render(text: past as JSON, contentType: 'application/json', encoding:"UTF-8")
+        header 'Access-Control-Allow-Origin', "*"
+        render(text: ["temps": past] as JSON, contentType: 'application/json', encoding:"UTF-8")
     }
 
     /**
@@ -77,7 +78,7 @@ class TemperatureController {
      *      params: type=F or C for fahrenheit or celsius. if not included, default is C
      *
      * @return the temp in degrees celsius. If the temp is not from within the last 1 second, then
-     *         null will be returned instead.
+     *         null will be returned instead. JSON will look like {"temp":13.2}
      */
     def latest() {
         boolean fahrenheit
