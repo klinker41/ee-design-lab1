@@ -10,14 +10,14 @@ class TemperatureController {
      *
      * Request should be as follows:
      *      GET /temperature
-     *      params: f=false or true is OPTIONAL, if not specified it will be defaulted to celsius
+     *      params: type=F or C for fahrenheit or celsius. if not included, default is C
      *
      * @return a list a the last 300 seconds worth of temperatures.
      */
     def index() {
         boolean fahrenheit = false
 
-        if (params.f != null) {
+        if (params.type != null && params.type.toUpper() == 'F') {
             fahrenheit = Boolean.parseBoolean(params.f)
         }
 
@@ -72,7 +72,7 @@ class TemperatureController {
      *
      * Request should be as follows:
      *      GET /temperature/latest?f=false
-     *      params: f=false or true is OPTIONAL, if not specified it will be defaulted to celsius
+     *      params: type=F or C for fahrenheit or celsius. if not included, default is C
      *
      * @return the temp in degrees celsius. If the temp is not from within the last 1 second, then
      *         null will be returned instead.
@@ -80,7 +80,7 @@ class TemperatureController {
     def latest() {
         boolean fahrenheit = false
 
-        if (params.f != null) {
+        if (params.type != null && params.type.toUpper() == 'F') {
             fahrenheit = Boolean.parseBoolean(params.f)
         }
 
