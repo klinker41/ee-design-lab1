@@ -15,10 +15,12 @@ class TemperatureController {
      * @return a list a the last 300 seconds worth of temperatures.
      */
     def index() {
-        boolean fahrenheit = false
+        boolean fahrenheit
 
         if (params.type != null && params.type.toUpper() == 'F') {
-            fahrenheit = Boolean.parseBoolean(params.f)
+            fahrenheit = true
+        } else {
+            fahrenheit = false
         }
 
         long currentTime = System.currentTimeMillis()
@@ -78,10 +80,12 @@ class TemperatureController {
      *         null will be returned instead.
      */
     def latest() {
-        boolean fahrenheit = false
+        boolean fahrenheit
 
         if (params.type != null && params.type.toUpper() == 'F') {
-            fahrenheit = Boolean.parseBoolean(params.f)
+            fahrenheit = true
+        } else {
+            fahrenheit = false
         }
 
         // return the last value from the temperature database
