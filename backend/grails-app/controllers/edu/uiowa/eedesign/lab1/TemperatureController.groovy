@@ -10,10 +10,17 @@ class TemperatureController {
      *
      * Request should be as follows:
      *      GET /temperature
+     *      params: f=false or true is OPTIONAL, if not specified it will be defaulted to celsius
      *
      * @return a list a the last 300 seconds worth of temperatures.
      */
     def index() {
+        boolean fahrenheit = false
+
+        if (params.f != null) {
+            fahrenheit = Boolean.parseBoolean(params.f)
+        }
+
         long currentTime = System.currentTimeMillis()
 
         def query = Temperature.where {
@@ -27,7 +34,9 @@ class TemperatureController {
             long diff = currentTime - temp.date
             int seconds = diff / 1000
 
-            past[seconds] = temp.temp + ""
+            // convert to fahrenheit if requested by the client, this way we don't worry about it
+            // in the javascript.
+            past[seconds] = (fahrenheit ? (temp.temp * 1.8f) + 32 : temp.temp) + ""
         }
         
         header 'Access-Control-Allow-Origin', "*"    
@@ -39,6 +48,7 @@ class TemperatureController {
      *
      * Request should be as follows:
      *      POST /temperature/add?temp=13.2
+     *      params: temp=13.2 is REQUIRED.
      *
      * where 13.2 is the temperature in degrees celsius.
      *
@@ -61,19 +71,28 @@ class TemperatureController {
      * Get the latest temperature from the database.
      *
      * Request should be as follows:
-     *      GET /temperature/latest
+     *      GET /temperature/latest?f=false
+     *      params: f=false or true is OPTIONAL, if not specified it will be defaulted to celsius
      *
      * @return the temp in degrees celsius. If the temp is not from within the last 1 second, then
      *         null will be returned instead.
      */
     def latest() {
+        boolean fahrenheit = false
+
+        if (params.f != null) {
+            fahrenheit = Boolean.parseBoolean(params.f)
+        }
+
         // return the last value from the temperature database
         Temperature temp = Temperature.listOrderByDate(max: 1, order: "desc")[0];
 
         def result
         response.setContentType("application/json")
-        if (temp != null && temp.date >= System.currentTimeMillis() - 1000) {
-            result = ["temp": temp.temp]
+        if (temp != null && temp.date >= System.currentTimeMillis() - 2000) {
+            // convert to fahrenheit if requested by the client, this way we don't worry about it
+            // in the javascript.
+            result = ["temp": fahrenheit ? (temp.temp * 1.8f) + 32 : temp.temp]
         } else {
             result = ["temp": null]
         }
