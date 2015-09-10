@@ -32,14 +32,36 @@ To get the latest temperature:
 GET 173.17.168.19:8083/lab1/temperature/latest
 ```
 
+#### Configuration ####
+
+You can update and store a few different configuration values for the clients to follow by posting or getting from the /config endpoint.
+
+To get the current configuration values:
+
+```
+GET 173.17.168.19:8083/lab1/config
+```
+
+To get whether or not we are pressing the button with software on the website:
+
+```
+GET 173.17.168.19:8083/lab1/config/pressedButton
+```
+
+To update a value in the config:
+
+```
+POST 173.17.168.19:8083/lab1/config/update?params...
+```
+
 More information is available in the javadocs for each controller.
 
 ## Test Client ##
 
-The client is available to send post requests to the database each second for testing the backend and website. It will post a random temperature every second when it is running. To start it up:
+The client is available to send post requests to the database each second for testing the backend and website. It will post temperatures in the form of a sine wave every second when it is running. To start it up:
 
 ```
 ./gradlew client:run
 ```
 
-Let it run for as long as you are testing.
+Let it run for as long as you are testing and do not have the arduino to test with.
