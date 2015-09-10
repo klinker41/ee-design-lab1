@@ -22,7 +22,7 @@ import static groovyx.net.http.ContentType.TEXT
 
 public class Client extends TimerTask {
 
-    private float currentTemp
+    private float currentTime = 0
 
     public static void main(String[] args) {
         // execute the run method every 1 second
@@ -32,8 +32,8 @@ public class Client extends TimerTask {
 
     @Override
     void run() {
-        Random random = new Random()
-        float temp = random.nextFloat() * 100
+        currentTime++
+        float temp = 50 * Math.sin(0.2094f * currentTime) + 50
 
         def http = new HTTPBuilder("http://173.17.168.19:8083/lab1/temperature/add?temp=${temp}")
 
