@@ -17,7 +17,7 @@ class TemperatureController {
     def index() {
         boolean fahrenheit
 
-        if (params.type != null && params.type.toUpper() == 'F') {
+        if (params.type != null && params.type.toUpperCase() == 'F') {
             fahrenheit = true
         } else {
             fahrenheit = false
@@ -82,7 +82,7 @@ class TemperatureController {
     def latest() {
         boolean fahrenheit
 
-        if (params.type != null && params.type.toUpper() == 'F') {
+        if (params.type != null && params.type.toUpperCase() == 'F') {
             fahrenheit = true
         } else {
             fahrenheit = false
