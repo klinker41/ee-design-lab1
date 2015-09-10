@@ -33,7 +33,7 @@ public class Client extends TimerTask {
     @Override
     void run() {
         currentTime++
-        float temp = 50 * Math.sin(0.2094f * currentTime) + 50
+        float temp = 20 * Math.sin(0.2094f * currentTime) + 30
 
         def http = new HTTPBuilder("http://173.17.168.19:8083/lab1/temperature/add?temp=${temp}")
 
