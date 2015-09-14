@@ -70,6 +70,7 @@ class ConfigController {
 
         boolean success = config.save(flush: true)
 
+        header 'Access-Control-Allow-Origin', "*"
         render success ? "200" : "500"
     }
 }
