@@ -23,11 +23,15 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 #define IDLE_TIMEOUT_MS 3000
 int connected;
 uint32_t ip;
-int USE_WIFI = 0;
+int USE_WIFI = 1;
 
 // HTTP request stuff
 #define BASE_URL         "173.17.168.19"
 #define URL_ADD          "/lab1/temperature/add?temp="
+
+char buf[8];
+char resBuffer[12] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+int resBufferSize = 0;
 
 /*********************************************************
 / Set up all communication with the arduino here
@@ -40,9 +44,6 @@ int USE_WIFI = 0;
 void setup() {
   // set up serial communication
   Serial.begin(9600);
-  
-  // set up the one wire temperature reading
-  sensors.begin();
   
   // for debugging purposes... the school wifi cannot be connected to because
   // it requires both a username and password. You need an actual os to be able
@@ -91,8 +92,6 @@ void setup() {
     if (!cc3000.getHostByName(BASE_URL, &ip)) {
       Serial.println(F("Couldn't resolve!"));
     }
-
-    delay(500);
   }
 
   cc3000.printIPdotsRev(ip);
@@ -108,19 +107,27 @@ void setup() {
 / REST endpoint so that it can be viewed on the web.
 /********************************************************/
 void loop() {
+  // set up the one wire temperature reading
+  sensors.begin();
   sensors.requestTemperatures();
+  
   float val = sensors.getTempCByIndex(0);
+  Serial.println();
+  Serial.print("Current Temperature: ");
+  Serial.println(val);
   
-  if (val != -127.0) {
-    Serial.print("Current Temperature: ");
-    Serial.println(val);
-  
+  if (val != -127.0f) {
     if (connected == 1) {
+      //Serial.println("Requesting Connection");
       makeRequest(val);
+      delay(700);
     }
   } else {
-    Serial.println("Not connected to sensor."); 
-    delay(1000);
+    Serial.println("Not connected");
+    if (connected == 1) {
+      makeRequest(404);
+      delay(700);
+    }
   }
 }
 
@@ -131,12 +138,14 @@ void loop() {
 void makeRequest(float currentTemp) {
   // Actually make request to webpage
   Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 8083);
+  //Serial.println("Connecting to TCP");
   if (!requestEndpoint(currentTemp, www)) {
+    //Serial.println("Could not connect to endpoint");
     return;
   }
   
+  //Serial.println("Connected to endpoint");
   processResponse(www);
-  www.close();
 }
 
 /*********************************************************
@@ -166,18 +175,28 @@ bool displayConnectionDetails(void) {
 /********************************************************/
 bool requestEndpoint(float value, Adafruit_CC3000_Client& www) {
   if (www.connected()) {
-    www.fastrprint(F("POST "));
+    Serial.print(F("GET "));
+    www.fastrprint(F("GET "));
+    Serial.print(URL_ADD);
     www.fastrprint(URL_ADD);
-    char* charVal;
-    dtostrf(value, 4, 3, charVal);
-    www.fastrprint(charVal);
+    dtostrf(value, 6, 3, buf);
+    Serial.print(buf);
+    www.fastrprint(buf);
+    Serial.print(F(" HTTP/1.1\r\n"));
     www.fastrprint(F(" HTTP/1.1\r\n"));
+    Serial.print(F("Host: "));
     www.fastrprint(F("Host: "));
+    Serial.print(BASE_URL);
     www.fastrprint(BASE_URL);
+    Serial.print(F("\r\n"));
     www.fastrprint(F("\r\n"));
+    Serial.print(F("User-Agent: Arduino\r\n"));
     www.fastrprint(F("User-Agent: Arduino\r\n"));
+    Serial.print(F("Content-Type: application/json\r\n"));
     www.fastrprint(F("Content-Type: application/json\r\n"));
+    Serial.print(F("\r\n"));
     www.fastrprint(F("\r\n"));
+    Serial.println();
     www.println();
     return true;
   } else {
@@ -191,24 +210,49 @@ bool requestEndpoint(float value, Adafruit_CC3000_Client& www) {
 /********************************************************/
 void processResponse(Adafruit_CC3000_Client& www) {
   Serial.println();
-  Serial.println(F("-------------------------------------"));
 
   // Read data until either the connection is closed, or the idle timeout is reached.
+  Serial.println(F("-------------------------------------"));
+  
   unsigned long lastRead = millis();
-    
   while (www.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
-    bool found = false;
-    bool needed = true;
     while (www.available()) {
       char c = www.read();
       Serial.print(c);
-      
-      // TODO we need to check here what the response is from the endpoint
-      //      a 1 means that we should enable the LEDs, a 0 means we should
-      //      disable them.
+      shiftBufferLeft(c);
+      lastRead = millis();
     }
+    
+    // TODO enable/disable the LED array based on this value
+    Serial.println("Result: ");
+    Serial.println(resBuffer[4]);
+    Serial.println();
+    break;
   }
   
-  Serial.println();
+  www.close();
   Serial.println(F("-------------------------------------"));
+}
+
+/*********************************************************
+/ Shift the circular buffer for response reading.
+/********************************************************/
+void shiftBufferLeft(char c) {
+  if (resBufferSize == 12) {
+    resBuffer[0] = resBuffer[1];
+    resBuffer[1] = resBuffer[2];
+    resBuffer[2] = resBuffer[3];
+    resBuffer[3] = resBuffer[4];
+    resBuffer[4] = resBuffer[5];
+    resBuffer[5] = resBuffer[6];
+    resBuffer[6] = resBuffer[7];
+    resBuffer[7] = resBuffer[8];
+    resBuffer[8] = resBuffer[9];
+    resBuffer[9] = resBuffer[10];
+    resBuffer[10] = resBuffer[11];
+    resBuffer[11] = c;
+  } else {
+    resBuffer[resBufferSize] = c;
+    resBufferSize++;
+  }
 }

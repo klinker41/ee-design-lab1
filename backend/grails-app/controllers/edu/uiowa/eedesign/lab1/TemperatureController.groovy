@@ -37,9 +37,21 @@ class TemperatureController {
             long diff = currentTime - temp.date
             int seconds = diff / 1000
 
-            // convert to fahrenheit if requested by the client, this way we don't worry about it
-            // in the javascript.
-            past[seconds] = (fahrenheit ? (temp.temp * 1.8f) + 32 : temp.temp) + ""
+            if (temp.temp == 404.0f) {
+                past[seconds] = null
+            } else {
+                // convert to fahrenheit if requested by the client, this way we don't worry about it
+                // in the javascript.
+                past[seconds] = (fahrenheit ? (temp.temp * 1.8f) + 32 : temp.temp) + ""
+            }
+        }
+
+        // go through and if a value is surrounded by 2 other values but is null, average the two
+        // around it.
+        for (int i = 1; i < past.length - 1; i++) {
+            if (past[i] == null && past[i-1] != null && past[i+1] != null) {
+                past[i] = (Float.parseFloat(past[i-1]) + Float.parseFloat(past[i+1])) / 2 + ""
+            }
         }
         
         header 'Access-Control-Allow-Origin', "*"
