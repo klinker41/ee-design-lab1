@@ -175,29 +175,41 @@ bool displayConnectionDetails(void) {
 /********************************************************/
 bool requestEndpoint(float value, Adafruit_CC3000_Client& www) {
   if (www.connected()) {
+    int del = 20;
     Serial.print(F("GET "));
     www.fastrprint(F("GET "));
+    delay(del);
     Serial.print(URL_ADD);
     www.fastrprint(URL_ADD);
+    delay(del);
     dtostrf(value, 6, 3, buf);
     Serial.print(buf);
     www.fastrprint(buf);
+    delay(del);
     Serial.print(F(" HTTP/1.1\r\n"));
     www.fastrprint(F(" HTTP/1.1\r\n"));
+    delay(del);
     Serial.print(F("Host: "));
     www.fastrprint(F("Host: "));
+    delay(del);
     Serial.print(BASE_URL);
     www.fastrprint(BASE_URL);
+    delay(del);
     Serial.print(F("\r\n"));
     www.fastrprint(F("\r\n"));
+    delay(del);
     Serial.print(F("User-Agent: Arduino\r\n"));
     www.fastrprint(F("User-Agent: Arduino\r\n"));
+    delay(del);
     Serial.print(F("Content-Type: application/json\r\n"));
     www.fastrprint(F("Content-Type: application/json\r\n"));
+    delay(del);
     Serial.print(F("\r\n"));
     www.fastrprint(F("\r\n"));
+    delay(del);
     Serial.println();
     www.println();
+    delay(del);
     return true;
   } else {
     Serial.println(F("Connection failed"));
