@@ -23,7 +23,7 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
 #define IDLE_TIMEOUT_MS 3000
 int connected;
 uint32_t ip;
-int USE_WIFI = 1;
+int USE_WIFI = 0;
 
 // HTTP request stuff
 #define BASE_URL         "173.17.168.19"
