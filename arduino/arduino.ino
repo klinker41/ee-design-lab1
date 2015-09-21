@@ -17,8 +17,8 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
                          SPI_CLOCK_DIVIDER);
                          
 // WiFi security declarations
-#define WLAN_SSID       "APT23-2"          // This needs to be your WiFi access point name, 32 character max
-#define WLAN_PASS       "waterpolo"        // WiFi access point password
+#define WLAN_SSID       "Ole Greg and the Boys"          // This needs to be your WiFi access point name, 32 character max
+#define WLAN_PASS       "UIEngineers"        // WiFi access point password
 #define WLAN_SECURITY   WLAN_SEC_WPA2      // WiFi security type
 #define IDLE_TIMEOUT_MS 3000
 int connected;
@@ -32,6 +32,14 @@ int USE_WIFI = 0;
 char buf[8];
 char resBuffer[12] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
 int resBufferSize = 0;
+const int buttonPin = 2;
+int isButtonOn = 0;
+volatile int temp = -127;
+
+const int switchPin = 8;
+int isSwitchOn = 0;
+const int LEDPins[7] = {14,15,16,17,18,19,7};
+int led[7];
 
 /*********************************************************
 / Set up all communication with the arduino here
@@ -44,6 +52,16 @@ int resBufferSize = 0;
 void setup() {
   // set up serial communication
   Serial.begin(9600);
+
+  interrupts();
+  pinMode(buttonPin, INPUT);
+  attachInterrupt(0, buttonPressed, CHANGE);
+
+  pinMode(switchPin, INPUT);
+  
+  for(int i = 0; i < 7; i++){
+    pinMode(LEDPins[i], OUTPUT);
+  }
   
   // for debugging purposes... the school wifi cannot be connected to because
   // it requires both a username and password. You need an actual os to be able
@@ -93,7 +111,6 @@ void setup() {
       Serial.println(F("Couldn't resolve!"));
     }
   }
-
   cc3000.printIPdotsRev(ip);
 }
 
@@ -108,26 +125,82 @@ void setup() {
 /********************************************************/
 void loop() {
   // set up the one wire temperature reading
-  sensors.begin();
-  sensors.requestTemperatures();
-  
-  float val = sensors.getTempCByIndex(0);
-  Serial.println();
-  Serial.print("Current Temperature: ");
-  Serial.println(val);
-  
-  if (val != -127.0f) {
-    if (connected == 1) {
-      //Serial.println("Requesting Connection");
-      makeRequest(val);
-      delay(700);
+  isSwitchOn = digitalRead(switchPin);
+  if(isSwitchOn == HIGH){
+ 
+    sensors.begin();
+    sensors.requestTemperatures();
+    
+    float val = sensors.getTempCByIndex(0);
+    Serial.println();
+    Serial.print("Current Temperature: ");
+    Serial.println(val);
+    
+    if (val != -127.0f) {
+      if (connected == 1) {
+        //Serial.println("Requesting Connection");
+        makeRequest(val);
+        //delay(700);
+      }
+    } else {
+      Serial.println("Not connected");
+      if (connected == 1) {
+        makeRequest(404);
+        //delay(700);
+      }
+      //FLASH LEDS
+      for(int i = 0; i < 7; i++){
+        digitalWrite(LEDPins[i], HIGH);
+      }
+      delay(50);
+      for(int i = 0 ; i < 7; i++){
+        digitalWrite(LEDPins[i], LOW);
+      }
     }
-  } else {
-    Serial.println("Not connected");
-    if (connected == 1) {
-      makeRequest(404);
-      delay(700);
+    
+    temp = (int)val;
+    int divisor = 64;
+    boolean negative = false;
+  
+    if(temp < 0){
+      negative = true;
+      temp = abs(temp);
     }
+
+    //Binary conversion
+    for(int i = 0; i < 7; i++){
+      if(temp >= divisor){
+        led[i] = 1;
+        temp -= divisor;
+      }
+      else{
+        led[i] = 0;
+      }
+      divisor = divisor/2;
+    }
+    int carry = 0;
+    if(negative){
+      if(led[6] == 0){
+        carry = 1;
+      }
+      for(int i=5;i>=0;i--){
+        if (carry == 1 && led[i] == 0){
+          carry = 1;
+        }
+        else if (carry == 1){
+          carry = 0;
+        }
+        else if(carry == 0){
+          if(led[i] == 1){
+            led[i] = 0;
+          }
+          else{
+            led[i] = 1;
+          }
+        }
+      }
+    }
+    DisplayLights();
   }
 }
 
@@ -267,4 +340,36 @@ void shiftBufferLeft(char c) {
     resBuffer[resBufferSize] = c;
     resBufferSize++;
   }
+}
+
+void buttonPressed(){
+  isSwitchOn = digitalRead(switchPin);
+  if(isSwitchOn == HIGH && temp != -127){
+    DisplayLights(); 
+  }
+}
+void DisplayLights(){
+   isButtonOn = digitalRead(buttonPin);
+   if(temp != -127){
+     if(resBuffer[4] == 1){
+       isButtonOn == HIGH;
+     }
+     if(isButtonOn == HIGH){
+       for(int i = 0; i < 7; i++){
+        //TURN ON LEDS
+        if(led[i] == 1){
+          digitalWrite(LEDPins[i], HIGH);
+        }
+        else if(led[i] == 0){
+         digitalWrite(LEDPins[i], LOW);
+        }
+       }
+     }
+     else if(isButtonOn == LOW){
+      //TURN OFF LEDS
+      for(int i = 0; i < 7; i++){
+        digitalWrite(LEDPins[i], LOW);
+      }
+     }  
+   }
 }
