@@ -17,17 +17,17 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
                          SPI_CLOCK_DIVIDER);
 
 // WiFi security declarations
-#define WLAN_SSID       "nexus5"           // This needs to be your WiFi access point name, 32 character max
+#define WLAN_SSID       "APT23-2"          // This needs to be your WiFi access point name, 32 character max
 #define WLAN_PASS       "waterpolo"        // WiFi access point password
 #define WLAN_SECURITY   WLAN_SEC_WPA2      // WiFi security type
 #define IDLE_TIMEOUT_MS 3000
 int connected;
 uint32_t ip;
-int USE_WIFI = 1;
+int USE_WIFI = 0;
 
 // HTTP request stuff
-#define BASE_URL         "http://default-environment-serpnbmp6z.elasticbeanstalk.com"
-#define URL_ADD          "/temperature/add?temp="
+#define BASE_URL         "173.17.168.19"
+#define URL_ADD          "/lab1/temperature/add?temp="
 
 char buf[8];
 char resBuffer[12] = {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
@@ -210,7 +210,7 @@ void loop() {
 /********************************************************/
 void makeRequest(float currentTemp) {
   // Actually make request to webpage
-  Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 80);
+  Adafruit_CC3000_Client www = cc3000.connectTCP(ip, 8181);
   //Serial.println("Connecting to TCP");
   if (!requestEndpoint(currentTemp, www)) {
     //Serial.println("Could not connect to endpoint");
@@ -308,7 +308,6 @@ void processResponse(Adafruit_CC3000_Client& www) {
       lastRead = millis();
     }
 
-    // TODO enable/disable the LED array based on this value
     Serial.println("Result: ");
     Serial.println(resBuffer[4]);
     Serial.println();
