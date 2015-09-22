@@ -15,7 +15,7 @@ DallasTemperature sensors(&oneWire);
 #define ADAFRUIT_CC3000_CS    10
 Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT,
                          SPI_CLOCK_DIVIDER);
-                         
+
 // WiFi security declarations
 #define WLAN_SSID       "APT23-2"          // This needs to be your WiFi access point name, 32 character max
 #define WLAN_PASS       "waterpolo"        // WiFi access point password
@@ -38,7 +38,7 @@ volatile int temp = -127;
 
 const int switchPin = 8;
 int isSwitchOn = 0;
-const int LEDPins[7] = {14,15,16,17,18,19,7};
+const int LEDPins[7] = {14, 15, 16, 17, 18, 19, 7};
 int led[7];
 
 /*********************************************************
@@ -58,11 +58,11 @@ void setup() {
   attachInterrupt(0, buttonPressed, CHANGE);
 
   pinMode(switchPin, INPUT);
-  
-  for(int i = 0; i < 7; i++){
+
+  for (int i = 0; i < 7; i++) {
     pinMode(LEDPins[i], OUTPUT);
   }
-  
+
   // for debugging purposes... the school wifi cannot be connected to because
   // it requires both a username and password. You need an actual os to be able
   // to handle these requests, arduino isn't powerful enough to do so. So,
@@ -71,14 +71,14 @@ void setup() {
   if (USE_WIFI == 0) {
     Serial.println("Skipping connecting to WiFi");
     return;
-  }  
-  
+  }
+
   // set up the wifi module
   if (!cc3000.begin()) {
     Serial.println(F("Couldn't begin()! Check your wiring?"));
     while (1);
   }
-  
+
   // Connect to WiFi access point
   Serial.print(F("\nAttempting to connect to "));
   Serial.println(WLAN_SSID);
@@ -126,16 +126,16 @@ void setup() {
 void loop() {
   // set up the one wire temperature reading
   isSwitchOn = digitalRead(switchPin);
-  if(isSwitchOn == HIGH){
- 
+  if (isSwitchOn == HIGH) {
+
     sensors.begin();
     sensors.requestTemperatures();
-    
+
     float val = sensors.getTempCByIndex(0);
     Serial.println();
     Serial.print("Current Temperature: ");
     Serial.println(val);
-    
+
     if (val != -127.0f) {
       if (connected == 1) {
         //Serial.println("Requesting Connection");
@@ -149,52 +149,52 @@ void loop() {
         //delay(700);
       }
       //FLASH LEDS
-      for(int i = 0; i < 7; i++){
+      for (int i = 0; i < 7; i++) {
         digitalWrite(LEDPins[i], HIGH);
       }
       delay(50);
-      for(int i = 0 ; i < 7; i++){
+      for (int i = 0 ; i < 7; i++) {
         digitalWrite(LEDPins[i], LOW);
       }
     }
-    
+
     temp = (int)val;
     int divisor = 64;
     boolean negative = false;
-  
-    if(temp < 0){
+
+    if (temp < 0) {
       negative = true;
       temp = abs(temp);
     }
 
     //Binary conversion
-    for(int i = 0; i < 7; i++){
-      if(temp >= divisor){
+    for (int i = 0; i < 7; i++) {
+      if (temp >= divisor) {
         led[i] = 1;
         temp -= divisor;
       }
-      else{
+      else {
         led[i] = 0;
       }
-      divisor = divisor/2;
+      divisor = divisor / 2;
     }
     int carry = 0;
-    if(negative){
-      if(led[6] == 0){
+    if (negative) {
+      if (led[6] == 0) {
         carry = 1;
       }
-      for(int i=5;i>=0;i--){
-        if (carry == 1 && led[i] == 0){
+      for (int i = 5; i >= 0; i--) {
+        if (carry == 1 && led[i] == 0) {
           carry = 1;
         }
-        else if (carry == 1){
+        else if (carry == 1) {
           carry = 0;
         }
-        else if(carry == 0){
-          if(led[i] == 1){
+        else if (carry == 0) {
+          if (led[i] == 1) {
             led[i] = 0;
           }
-          else{
+          else {
             led[i] = 1;
           }
         }
@@ -216,7 +216,7 @@ void makeRequest(float currentTemp) {
     //Serial.println("Could not connect to endpoint");
     return;
   }
-  
+
   //Serial.println("Connected to endpoint");
   processResponse(www);
 }
@@ -298,7 +298,7 @@ void processResponse(Adafruit_CC3000_Client& www) {
 
   // Read data until either the connection is closed, or the idle timeout is reached.
   Serial.println(F("-------------------------------------"));
-  
+
   unsigned long lastRead = millis();
   while (www.connected() && (millis() - lastRead < IDLE_TIMEOUT_MS)) {
     while (www.available()) {
@@ -307,14 +307,14 @@ void processResponse(Adafruit_CC3000_Client& www) {
       shiftBufferLeft(c);
       lastRead = millis();
     }
-    
+
     // TODO enable/disable the LED array based on this value
     Serial.println("Result: ");
     Serial.println(resBuffer[4]);
     Serial.println();
     break;
   }
-  
+
   www.close();
   Serial.println(F("-------------------------------------"));
 }
@@ -345,10 +345,10 @@ void shiftBufferLeft(char c) {
 /*********************************************************
 / Check if the button is pressed or not.
 /********************************************************/
-void buttonPressed(){
+void buttonPressed() {
   isSwitchOn = digitalRead(switchPin);
-  if(isSwitchOn == HIGH && temp != -127){
-    displayLights(); 
+  if (isSwitchOn == HIGH && temp != -127) {
+    displayLights();
   }
 }
 
@@ -356,25 +356,25 @@ void buttonPressed(){
 / display the LEDs in the correct format
 /********************************************************/
 void displayLights() {
-   isButtonOn = digitalRead(buttonPin);
-   if(temp != -127){
-     if(resBuffer[4] == 1){
-       isButtonOn = HIGH;
-     }
-     if(isButtonOn == HIGH){
-       for(int i = 0; i < 7; i++){
+  isButtonOn = digitalRead(buttonPin);
+  if (temp != -127) {
+    if (resBuffer[4] == 1) {
+      isButtonOn = HIGH;
+    }
+    if (isButtonOn == HIGH) {
+      for (int i = 0; i < 7; i++) {
         //TURN ON LEDS
-        if(led[i] == 1){
+        if (led[i] == 1) {
           digitalWrite(LEDPins[i], HIGH);
-        } else if(led[i] == 0){
-         digitalWrite(LEDPins[i], LOW);
+        } else if (led[i] == 0) {
+          digitalWrite(LEDPins[i], LOW);
         }
-       }
-     } else if(isButtonOn == LOW){
+      }
+    } else if (isButtonOn == LOW) {
       //TURN OFF LEDS
-      for(int i = 0; i < 7; i++){
+      for (int i = 0; i < 7; i++) {
         digitalWrite(LEDPins[i], LOW);
       }
-     }  
-   }
+    }
+  }
 }
