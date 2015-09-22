@@ -35,7 +35,7 @@ public class Client extends TimerTask {
         currentTime++
         float temp = 20 * Math.sin(0.2094f * currentTime) + 30
 
-        def http = new HTTPBuilder("http://default-environment-serpnbmp6z.elasticbeanstalk.com/temperature/add?temp=${temp}")
+        def http = new HTTPBuilder("http://173.17.168.19:8181/lab1/temperature/add?temp=${temp}")
 
         http.request(POST, TEXT) { req ->
             response.success = { resp, reader ->
