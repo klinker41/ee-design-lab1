@@ -17,7 +17,7 @@ Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ
                          SPI_CLOCK_DIVIDER);
 
 // WiFi security declarations
-#define WLAN_SSID       "nexus5"          // This needs to be your WiFi access point name, 32 character max
+#define WLAN_SSID       "nexus5"           // This needs to be your WiFi access point name, 32 character max
 #define WLAN_PASS       "waterpolo"        // WiFi access point password
 #define WLAN_SECURITY   WLAN_SEC_WPA2      // WiFi security type
 #define IDLE_TIMEOUT_MS 3000

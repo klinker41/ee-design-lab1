@@ -90,7 +90,8 @@ task wrapper(type: Wrapper) {
 }
 
 cargo {
-    containerId = 'wildfly9x'
+    containerId = 'tomcat7x'
+    port = 8181
 
     deployable {
         context = 'lab1'
@@ -98,10 +99,7 @@ cargo {
 
     remote {
         hostname = '173.17.168.19'
-        username = 'klinker41'
-        password = 'klinker1127'
-        containerProperties {
-            property 'cargo.jboss.management-http.port', 9993
-        }
+        username = 'admin'
+        password = 'password'
     }
 }
